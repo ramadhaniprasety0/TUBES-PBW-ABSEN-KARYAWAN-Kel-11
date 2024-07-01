@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/fonts/icomoon/style.css">
+
+    <link rel="stylesheet" href="/static/css/owl.carousel.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    
+    <!-- Style -->
+    <link rel="stylesheet" href="/static/css/stylelogin.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <title>Login Karyawan Absen In</title>
+  </head>
+  <body>
+  
+
+  
+  <div class="content">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <img src="/static/img/undraw_remotely_2j6y.svg" alt="Image" class="img-fluid">
+        </div>
+        <div class="col-md-6 contents">
+          <div class="row justify-content-center">
+            <div class="col-md-8">
+              <div class="mb-4">
+              <h3>Masuk</h3>
+              <p class="mb-4">Masuk Ke Dalam Untuk Melakukan Absen Kehadiran Anda !</p>
+            </div>
+            <form id="loginForm">
+              <div class="form-group first">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username">
+
+              </div>
+              <div class="form-group last mb-4">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password">
+                
+              </div>
+              
+              <div class="d-flex mb-5 align-items-center">
+                <span class="ml-auto"><a href="#" class="forgot-pass">Forgot Password</a></span>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-user btn-block">Login</button>
+
+              </form>
+            </div>
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+    <script src="/static/js/login/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/login/popper.min.js"></script>
+    <script src="/static/js/login/bootstrap.min.js"></script>
+    <script src="/static/js/login/main.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('password', password);
+
+      console.log('Form Data:', Object.fromEntries(formData.entries()));
+
+       fetch('/login/karyawan', {
+        method: 'POST',
+        body: formData
+      })
+              .then(response => response.json())
+              .then(data => {
+                if (data.error) {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Login Failed',
+                    text: data.error,
+                  });
+                } else if (data.message) {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Login Successful',
+                    text: data.message,
+                  }).then(() => {
+                    if (data.redirect) {
+                      window.location.href = data.redirect;
+                    }
+                  });
+                }
+              })
+              .catch(error => {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'Something went wrong!',
+                });
+                console.error('Error:', error);
+              });
+    });
+  </script>
+  </body>
+</html>

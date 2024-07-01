@@ -1,8 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     const karyawanList = document.getElementById('karyawan-list');
-    const searchKaryawan = document.getElementById('searchKaryawan');
     const editKaryawanForm = document.getElementById('editKaryawanForm');
     const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+    const jumlahKaryawanElement = document.getElementById('jumlahkaryawan');
+    const jumlahHadirElement = document.getElementById('jumlahHadir');
+    const jumlahTidakHadir = document.getElementById('jumlahTidakHadir');
+
 
     // Menampilkan data karyawan
     function fetchKaryawans() {
@@ -31,7 +34,80 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => console.error('Error fetching karyawans:', error));
     }
+
+    // Menampilkan jumlah karyawan
+    console.log('jumlahKaryawanElement:', jumlahKaryawanElement);
+
+    // Menampilkan jumlah karyawan
+    function fetchJumlahKaryawan() {
+        console.log('fetchJumlahKaryawan called');
+        fetch('/api/totalkaryawan')
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Jumlah karyawan fetched from API:', data); // Logging jumlah karyawan
+                if (data.count !== undefined) {
+                    jumlahKaryawanElement.innerHTML = data.count;
+                } else {
+                    jumlahKaryawanElement.innerHTML = 'N/A';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching jumlah karyawan:', error);
+                jumlahKaryawanElement.innerHTML = 'Error';
+            });
+    }
+
+    // Menampilkan Jumlah Hadir
+    function fetchJumlahHadir() {
+        console.log('fetchJumlahKaryawan called');
+        fetch('/api/total/hadir')
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Jumlah Hadir fetched from API:', data); // Logging jumlah karyawan
+                if (data.count !== undefined) {
+                    jumlahHadirElement.innerHTML = data.count;
+                } else {
+                    jumlahHadirElement.innerHTML = 'N/A';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching jumlah karyawan:', error);
+                jumlahHadirElement.innerHTML = 'Error';
+            });
+    }
+
+    // Menampilkan Tidak Hadir
+    function fetchTidakHadir() {
+        console.log('fetchJumlahKaryawan called');
+        fetch('/api/total/tidak/hadir')
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Jumlah Tidak Hadir fetched from API:', data); // Logging jumlah karyawan
+                if (data.count !== undefined) {
+                    jumlahTidakHadir.innerHTML = data.count;
+                } else {
+                    jumlahTidakHadir.innerHTML = 'N/A';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching jumlah karyawan:', error);
+                jumlahTidakHadir.innerHTML = 'Error';
+            });
+    }
+
     fetchKaryawans();
+    fetchJumlahKaryawan();
+    fetchJumlahHadir();
+    fetchTidakHadir();
 
     // Edit data karyawan
     function editKaryawan(id, nama, deskripsi) {
@@ -64,6 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         confirmButtonText: 'OK'
                     });
                     fetchKaryawans();
+                    fetchJumlahKaryawan(); // Perbarui jumlah karyawan setelah pembaruan
                     $('#editKaryawanModal').modal('hide');
                 } else {
                     Swal.fire({
@@ -113,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         confirmButtonText: 'OK'
                     });
                     fetchKaryawans();
+                    fetchJumlahKaryawan(); // Perbarui jumlah karyawan setelah penghapusan
                     $('#hapusKaryawanModal').modal('hide');
                 } else {
                     Swal.fire({
@@ -138,51 +216,44 @@ document.addEventListener('DOMContentLoaded', function() {
     window.editKaryawan = editKaryawan;
 
     // Mencari karyawan berdasarkan ID
-    searchKaryawan.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const karyawanId = document.getElementById('karyawanId').value;
+    function searchKaryawan() {
+        const karyawanId = document.getElementById('searchKaryawanId').value;
+        const resultDiv = document.getElementById('karyawanResult');
+        const aksisearch = document.getElementById('aksisearch')
 
-        fetch(`/api/karyawan/${karyawanId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.karyawan) {
-                    const karyawan = data.karyawan;
-                    Swal.fire({
-                        title: 'Data Karyawan Ditemukan',
-                        html: `
-                            <p><strong>ID:</strong> ${karyawan.id}</p>
-                            <p><strong>Nama:</strong> ${karyawan.nama}</p>
-                            <p><strong>Deskripsi:</strong> ${karyawan.deskripsi}</p>
-                        `,
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Tidak Ditemukan',
-                        text: data.message || 'Data karyawan tidak ditemukan.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
+        if (karyawanId.trim() === '') {
+            resultDiv.innerHTML = '<div class="alert alert-warning" role="alert">ID Karyawan tidak boleh kosong!</div>';
+            return;
+        }
+
+        fetch(`/api/karyawan/${karyawanId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Karyawan tidak ditemukan');
                 }
+                return response.json();
+            })
+            .then(data => {
+                const karyawan = data.karyawan;
+                resultDiv.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">ID: ${karyawan.id}</h5>
+                            <p class="card-text">Nama: ${karyawan.nama_karyawan}</p>
+                            <p class="card-text">Deskripsi: ${karyawan.deskripsi}</p>
+                        </div>
+                    </div>
+                    
+                `;
+                aksisearch.innerHTML =`
+                    <button type="button" class="btn btn-primary" onclick="editKaryawan(${karyawan.id}, '${karyawan.nama_karyawan}', '${karyawan.deskripsi}')">Edit</button>
+                    <button type="button" class="btn btn-danger" onclick="tampilHapusModal(${karyawan.id}, '${karyawan.nama_karyawan}', '${karyawan.deskripsi}')">Hapus</button>
+                `;
             })
             .catch(error => {
-                console.error('Error fetching karyawan:', error);
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Terjadi kesalahan saat mencari data karyawan.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
+                resultDiv.innerHTML = `<div class="alert alert-danger" role="alert">${error.message}</div>`;
             });
-    });
+    }
 
-
-
-    fetchKaryawans();
+    window.searchKaryawan = searchKaryawan;
 });

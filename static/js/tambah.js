@@ -1,18 +1,24 @@
 document.addEventListener('DOMContentLoaded', function() {
     const karyawanForm = document.getElementById('karyawan-form');
 
-    // Menambahkan Data karyawan
-    karyawanForm.addEventListener('submit', function (event) {
+    karyawanForm.addEventListener('submit', function(event) {
         event.preventDefault();
         const nama = document.getElementById('nama').value;
         const deskripsi = document.getElementById('deskripsi').value;
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
 
         fetch('/api/tambahkaryawan', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({nama_karyawan: nama, deskripsi: deskripsi})
+            body: JSON.stringify({
+                nama_karyawan: nama,
+                deskripsi: deskripsi,
+                username: username,
+                password: password
+            })
         })
             .then(response => {
                 if (!response.ok) {
@@ -30,6 +36,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     confirmButtonText: 'OK'
                 });
             })
-
+            .catch(error => {
+                console.error('Error adding karyawan:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Gagal menambahkan data karyawan.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
     });
 });
