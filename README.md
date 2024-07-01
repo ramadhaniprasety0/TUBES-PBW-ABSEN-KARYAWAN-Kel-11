@@ -35,3 +35,5 @@ Dengan website absensi karyawan mempermudah dalam rekap absen karena semua data 
 
 ---
 ## Youtube 
+[![Tonton video peresentasi di YouTube](https://img.youtube.com/vi/mjiMl4xj0yc/0.jpg)](https://youtu.be/mjiMl4xj0yc)
+
